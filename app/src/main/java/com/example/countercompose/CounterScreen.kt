@@ -26,20 +26,31 @@ fun CounterApp(
     viewModel: CounterViewModel = viewModel()
 ) {
     val counter by viewModel.counter
+    val nameInput by viewModel.nameInput
+    val savedName by viewModel.savedName
+
     CounterScreen(
         counter = counter,
+        nameInput = nameInput,
+        savedName = savedName,
         onIncrement = { viewModel.increment() },
         onDecrement = { viewModel.decrement() },
         onReset = { viewModel.reset() },
+        onNameChange = { viewModel.onNameChange(it) },
+        onSaveName = { viewModel.saveName() },
         modifier = modifier
     )
 }
 @Composable
 fun CounterScreen(
     counter: Int,
+    nameInput: String,
+    savedName: String,
     onIncrement: () -> Unit,
     onDecrement: () -> Unit,
     onReset: () -> Unit,
+    onNameChange: (String) -> Unit,
+    onSaveName: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -56,6 +67,7 @@ fun CounterScreen(
         Spacer(modifier = Modifier.height(16.dp))
         CounterDisplay(
             value = counter,
+            savedName = savedName,          // baru
             modifier = Modifier.fillMaxWidth().weight(1f)
         )
         Spacer(modifier = Modifier.height(16.dp))
@@ -64,23 +76,49 @@ fun CounterScreen(
             onIncrement = onIncrement,
             onReset = onReset
         )
+
+        // Form Nama + Tombol Simpan
+        Spacer(modifier = Modifier.height(8.dp))
+        OutlinedTextField(
+            value = nameInput,
+            onValueChange = onNameChange,
+            label = { Text("Nama") },
+            singleLine = true,
+            modifier = Modifier.fillMaxWidth()
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        Button(
+            onClick = onSaveName,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("SIMPAN")
+        }
     }
 }
+
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun CounterScreenPreview() {
     CounterComposeTheme {
         CounterScreen(
             counter = 7,
+            nameInput = "Budi",
+            savedName = "Budi",
             onIncrement = {},
             onDecrement = {},
-            onReset = {}
+            onReset = {},
+            onNameChange = {},
+            onSaveName = {}
         )
     }
 }
 
 @Composable
-fun CounterDisplay(value: Int, modifier: Modifier = Modifier) {
+fun CounterDisplay(
+    value: Int,
+    savedName: String,
+    modifier: Modifier = Modifier
+) {
     Box(
         modifier = modifier.background(
             color = Color(0xFFF5F5F5),
@@ -101,6 +139,17 @@ fun CounterDisplay(value: Int, modifier: Modifier = Modifier) {
             fontSize = 120.sp,
             fontWeight = FontWeight.Bold
         )
+        // BARU: nama tampil di bawah angka counter
+        if (savedName.isNotBlank()) {
+            Text(
+                text = "Nama: $savedName",
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Medium,
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .padding(bottom = 16.dp)
+            )
+        }
     }
 }
 
